@@ -9,7 +9,7 @@ class SmartCalc:
             '-': lambda a, b: b - a,
             '/': lambda a, b: b / a,
             '*': lambda a, b: a * b,
-            '^': lambda a, b: a ** b}
+            '^': lambda a, b: b ** a}
         self.errors = {1: 'Unknown command',
                        2: 'Invalid identifier',
                        3: 'Invalid assignment',
@@ -58,7 +58,8 @@ class SmartCalc:
         return True, None
 
     def expression_handler(self, exp):
-        self.exp_arr = [i for i in re.split(r'([+-]+|[/*() ])', exp) if i != '' and i != ' ']
+        exp = exp.replace(' ', '')
+        self.exp_arr = [i for i in re.split(r'([+-]+|[/*()^ ])', exp) if i != '' and i != ' ']
         check, error = self.check_expression()
         if not check:
             return False, error
@@ -116,13 +117,13 @@ class SmartCalc:
             if el in self.operators:
                 if len(res_stack) < 2:
                     return False, self.errors[4]
-                a, b = float(res_stack.pop()), float(res_stack.pop())
-                if b == 0 and el == '/':
+                a, b = int(res_stack.pop()), int(res_stack.pop())
+                if a == 0 and el == '/':
                     return False, self.errors[6]
                 res = self.operators[el](a, b)
-                res_stack.append(float(res))
+                res_stack.append(int(res))
             else:
-                res_stack.append(float(el))
+                res_stack.append(int(el))
         if len(res_stack) > 1:
             return False, self.errors[4]
         return res_stack[0], None
